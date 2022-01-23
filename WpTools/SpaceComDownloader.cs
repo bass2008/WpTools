@@ -12,15 +12,32 @@ namespace WpTools
             var client = new RestClient(link);
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
-
             var s = response.Content;
 
+            Console.WriteLine($"{name} is downloaded");
+
             // Save
+            var path = GetPath(name);
+            File.WriteAllText(path, s);
+        }
 
-            var enviroment = System.Environment.CurrentDirectory;
+        public string Load(string link, string name)
+        {
+            var path = GetPath(name);
+            if (File.Exists(path) == false)
+                Run(link, name);
 
-            var path = Directory.GetParent(enviroment)!.Parent!.Parent!.FullName;
-            
+            if (File.Exists(path) == false)
+                throw new Exception("File is not exist! Something wrong!");
+
+            var text = File.ReadAllText(path);
+            return text;
+        }
+
+        private static string GetPath(string name)
+        {
+            var path = Directory.GetParent(Environment.CurrentDirectory)!.Parent!.Parent!.FullName;
+
             path = Path.Combine(path, "lake");
 
             if (Directory.Exists(path) == false)
@@ -32,8 +49,7 @@ namespace WpTools
                 Directory.CreateDirectory(path);
 
             path = Path.Combine(path, name);
-
-            File.WriteAllText(path, s);
+            return path;
         }
     }
 }
